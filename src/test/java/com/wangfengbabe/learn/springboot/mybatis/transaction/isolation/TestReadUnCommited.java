@@ -14,9 +14,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.web.context.ContextLoader;
 
 
 @SpringBootTest
@@ -25,11 +30,19 @@ public class TestReadUnCommited {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    CountDownLatch latch = new CountDownLatch(2);
+    CountDownLatch first = new CountDownLatch(1);
+    CountDownLatch second = new CountDownLatch(1);
+    CountDownLatch third = new CountDownLatch(1);
+
     @Autowired
     private AccountMapper accountMapper;
 
+    @Autowired
+    private PlatformTransactionManager txManager;
+
     @Test
-    public void test1() {
+    public void test() {
         Account account = new Account();
         account.setUserName("王峰");
         account.setBalance(100D);
@@ -40,57 +53,25 @@ public class TestReadUnCommited {
 
     }
 
-    @Test
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
-    public void test() {
-        CountDownLatch latch = new CountDownLatch(2);
-        ExecutorService threadpool = Executors.newFixedThreadPool(2);
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Account account = new Account();
-                    account.setUserName("王峰");
-                    account.setBalance(100D);
-                    account.setUserId(10000L);
-                    int insert = accountMapper.insert(account);
-                    try {
-                        TimeUnit.SECONDS.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        throw new RuntimeException("异常");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
 
-                } finally {
-                    latch.countDown();
-                }
-
-
-            }
-        });
-
-        Thread t2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<Account> accounts = accountMapper.selectAll();
-                System.out.println("accounts:" + accounts);
-                latch.countDown();
-            }
-        });
-        threadpool.submit(t1);
-        threadpool.submit(t2);
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        threadpool.shutdown();
+    //    @Transactional(rollbackFor = {RuntimeException.class}, propagation = Propagation.REQUIRES_NEW)
+    public void insert() {
+        // spring无法处理thread的事务，声明式事务无效
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        PlatformTransactionManager txManager = ContextLoader.getCurrentWebApplicationContext()
+                .getBean(PlatformTransactionManager.class);
+        TransactionStatus status = txManager.getTransaction(def);
+        Account account = new Account();
+        account.setUserName("王峰");
+        account.setBalance(100D);
+        account.setUserId(10000L);
+        int insert = accountMapper.insert(account);
 
 
     }
+
+
 
 
 }

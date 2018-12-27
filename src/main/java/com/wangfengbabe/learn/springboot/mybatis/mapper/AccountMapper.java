@@ -4,7 +4,7 @@ import com.wangfengbabe.learn.springboot.mybatis.domain.Account;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
-//@Mapper
+@Mapper
 public interface AccountMapper {
 
     /**

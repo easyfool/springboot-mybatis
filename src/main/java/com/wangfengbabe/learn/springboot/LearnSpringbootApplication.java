@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 //(exclude = {DataSourceAutoConfiguration.class})
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication
 @MapperScan("com.wangfengbabe.learn.springboot.mybatis.mapper")
 @EnableTransactionManagement
 public class LearnSpringbootApplication {
