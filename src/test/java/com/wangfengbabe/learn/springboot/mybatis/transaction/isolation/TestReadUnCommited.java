@@ -3,11 +3,14 @@ package com.wangfengbabe.learn.springboot.mybatis.transaction.isolation;
 import com.wangfengbabe.learn.springboot.mybatis.domain.Account;
 import com.wangfengbabe.learn.springboot.mybatis.mapper.AccountMapper;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -19,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class TestReadUnCommited {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AccountMapper accountMapper;
@@ -36,8 +41,9 @@ public class TestReadUnCommited {
     }
 
     @Test
-//    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED, propagation = Propagation.REQUIRED)
     public void test() {
+        CountDownLatch latch = new CountDownLatch(2);
         ExecutorService threadpool = Executors.newFixedThreadPool(2);
         Thread t1 = new Thread(new Runnable() {
             @Override
@@ -48,16 +54,18 @@ public class TestReadUnCommited {
                     account.setBalance(100D);
                     account.setUserId(10000L);
                     int insert = accountMapper.insert(account);
-//                    try {
-//                        TimeUnit.SECONDS.sleep(15);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    } finally {
-//                        throw new RuntimeException("异常");
-//                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        throw new RuntimeException("异常");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
 
+                } finally {
+                    latch.countDown();
                 }
 
 
@@ -69,10 +77,16 @@ public class TestReadUnCommited {
             public void run() {
                 List<Account> accounts = accountMapper.selectAll();
                 System.out.println("accounts:" + accounts);
+                latch.countDown();
             }
         });
         threadpool.submit(t1);
         threadpool.submit(t2);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         threadpool.shutdown();
 
 
