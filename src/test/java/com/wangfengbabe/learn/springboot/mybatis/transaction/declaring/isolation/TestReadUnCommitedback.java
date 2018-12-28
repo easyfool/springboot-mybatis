@@ -1,4 +1,4 @@
-package com.wangfengbabe.learn.springboot.mybatis.transaction.isolation;
+package com.wangfengbabe.learn.springboot.mybatis.transaction.declaring.isolation;
 
 import com.wangfengbabe.learn.springboot.mybatis.domain.Account;
 import com.wangfengbabe.learn.springboot.mybatis.mapper.AccountMapper;

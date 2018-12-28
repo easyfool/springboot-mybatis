@@ -236,7 +236,7 @@
               SqlServer :相当于selectKey的SQL为：SELECT SCOPE_IDENTITY()
               SYBASE    :相当于selectKey的SQL为：SELECT @@IDENTITY
               JDBC      :相当于在生成的insert元素上添加useGeneratedKeys="true"和keyProperty属性-->
-      <generatedKey column="id" sqlStatement="SELECT LAST_INSERT_ID()"/>
+      <generatedKey column="id" sqlStatement="JDBC"/>
 
 
       <!--

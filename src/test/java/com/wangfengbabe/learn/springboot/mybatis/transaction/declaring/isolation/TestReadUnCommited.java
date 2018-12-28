@@ -1,12 +1,8 @@
-package com.wangfengbabe.learn.springboot.mybatis.transaction.isolation;
+package com.wangfengbabe.learn.springboot.mybatis.transaction.declaring.isolation;
 
 import com.wangfengbabe.learn.springboot.mybatis.domain.Account;
 import com.wangfengbabe.learn.springboot.mybatis.mapper.AccountMapper;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -17,9 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.context.ContextLoader;
 
