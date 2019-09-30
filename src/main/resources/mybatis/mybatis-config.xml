@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 配置数据源信息 -->
+    <properties resource="db.properties"/>
+    <settings>
+        <setting name="cacheEnabled" value="true"/>
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="multipleResultSetsEnabled" value="true"/>
+        <setting name="useColumnLabel" value="true"/>
+        <setting name="useGeneratedKeys" value="true"/>
+        <setting name="autoMappingBehavior" value="PARTIAL"/>
+        <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
+        <setting name="defaultExecutorType" value="SIMPLE"/>
+        <setting name="defaultStatementTimeout" value="25"/>
+        <setting name="defaultFetchSize" value="100"/>
+        <setting name="safeRowBoundsEnabled" value="false"/>
+        <setting name="mapUnderscoreToCamelCase" value="false"/>
+        <setting name="localCacheScope" value="SESSION"/>
+        <setting name="jdbcTypeForNull" value="OTHER"/>
+        <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+    </settings>
+
+    <!--
+        类型别名只是Java类型的别名，它可以有效减少Xml配置文件中映射查询语句里
+        返回类型(resultType)为自定义实体类的完全限定名冗余
+    -->
+    <typeAliases>
+<!--                <typeAlias alias="BlogDO" type="com.github.wangfeng.mybatis.entity.BlogDO"/>-->
+        <!--可以批量扫描，自动生成别名，自动生成的别名是类型或者类名首字母小写-->
+                <package name="com.github.wangfeng.mybatis.entity"/>
+    </typeAliases>
+
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" javaType="com.github.wangfeng.mybatis.enums.DataStatusEnum" />
+<!--        <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" javaType="com.answer.aal.entity.SexEnum" />-->
+    </typeHandlers>
+
+<!--    <typeHandlers>-->
+<!--        <typeHandler handler="com.github.wangfeng.mybatis.typeHandler.EnumTypeHandler" javaType="com.github.wangfeng.mybatis.enums.DataStatusEnum"/>-->
+<!--    </typeHandlers>-->
+    <!--
+         获取数据库连接实例的数据源（DataSource）和决定事务作用域和控制方式的事务管理器（TransactionManager）
+     -->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 程序中所用到sql映射文件都在这里列出，这些映射sql都被Mybatis管理 -->
+    <mappers>
+        <mapper resource="mybatis/mapping/BlogMapper.xml"/>
+    </mappers>
+</configuration>
